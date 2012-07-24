@@ -1,0 +1,34 @@
+.webtile {
+    height: 600px;
+}
+
+.wt-useless {
+    height: 100%;
+    width: 100%;
+}
+
+.wt-partition {
+    display: table;
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+}
+
+.wt-vertical > * {
+    display: table-row;
+}
+
+.wt-horizontal > * {
+    display: table-cell;
+}
+
+.wt-title {
+    background-color: #1975FF;
+    padding: 1px 1px 1px 5px;
+}
+
+.wt-window {
+    border-width: 1px solid;
+    border-color: black;
+    padding: 1px;
+}
