@@ -19,11 +19,6 @@ body {
     border-color: gray;
 }
 
-.wt-useless {
-    height: 100%;
-    width: 100%;
-}
-
 .wt-partition {
     height: 100%;
     width: 100%;
@@ -52,5 +47,15 @@ body {
 .wt-window {
     border-width: 1px 0px 0px 1px;
     border-style: solid;
+    border-color: gray;
+    position: relative;
+}
+
+.wt-mask {
+    position: absolute;
+    background-color: #00aa00;
+    opacity: 0.5;
+    border-width: 1px;
+    border-style: dotted;
     border-color: gray;
 }
