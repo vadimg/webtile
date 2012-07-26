@@ -1,16 +1,20 @@
 (function() {
 
+var firstRender = true;
+
 function render() {
-    $('.wt-partition').each(function(_, obj) {
+    function renderChilds(_, obj) {
         var $obj = $(obj);
         var th = $obj.height();
         var tw = $obj.width();
         var $childs = $(obj).children();
 
         // remove stray spaces cuz they will fuck up the layout
-        $childs.remove();
-        $obj.text('');
-        $obj.append($childs);
+        if(firstRender) {
+            $childs.remove();
+            $obj.text('');
+            $obj.append($childs);
+        }
 
         if($obj.hasClass('wt-vertical')) {
             $childs.width(tw);
@@ -22,7 +26,7 @@ function render() {
 
                 $child.height(height);
             });
-        } else if($obj.hasClass('wt-horizontal')) {
+        } else if($obj.hasClass('wt-horizontal') || $obj.hasClass('webtile')) {
             $childs.height(th);
             $childs.each(function(i, child) {
                 var $child = $(child);
@@ -33,9 +37,13 @@ function render() {
                 $child.width(width);
             });
         }
-    });
+    }
+    $('.webtile').each(renderChilds);
+    $('.wt-partition').each(renderChilds);
+    firstRender = false;
 }
 
+gc();
 render();
 $('.webtile').css('visibility', 'visible');
 
@@ -45,8 +53,8 @@ $('.wt-title').mousedown(function(e) {
     var $target = $(e.target);
 
     dragging = {
-        target: $target.parent(),
-        copy: $target.parent().clone().css({
+        $target: $target.parent(),
+        $copy: $target.parent().clone().css({
             opacity: .5,
             position: 'absolute',
             'border-width': '1px',
@@ -54,7 +62,9 @@ $('.wt-title').mousedown(function(e) {
             left: e.pageX - e.offsetX
         }).insertAfter('body'),
         x: e.offsetX,
-        y: e.offsetY
+        y: e.offsetY,
+        moveto: null,
+        windows: null
     };
 
     var $windows = $target.parentsUntil('.webtile').parent('.webtile').find('.wt-window');
@@ -79,9 +89,55 @@ $(document).mouseup(function(e) {
         return;
     }
 
-    dragging.copy.remove();
+    dragging.$copy.remove();
     $('.wt-mask').remove();
+
+    var $target = dragging.$target;
+
+    if(!dragging.moveto) {
+        dragging = null;
+        return;
+    }
+
+    var $win = dragging.moveto.$win;
+    var quad = dragging.moveto.quad;
+
+    var pclass;
+    if(quad === 'left' || quad === 'right') {
+        pclass = 'wt-horizontal';
+    } else {
+        pclass = 'wt-vertical';
+    }
+
+    if($win.parent().hasClass(pclass)) {
+        // add to current partition
+        if(quad === 'top' || quad === 'left') {
+            $target.insertBefore($win);
+        } else {
+            $target.insertAfter($win);
+        }
+    } else {
+        // create new partition
+        var $partition = $('<div/>', {
+            class: 'wt-partition',
+        });
+
+        $partition.addClass(pclass);
+
+        $partition.insertAfter($win);
+
+        if(quad === 'top' || quad === 'left') {
+            $win.appendTo($partition);
+        }
+        $target.appendTo($partition);
+        if(quad === 'bottom' || quad === 'right') {
+            $win.appendTo($partition);
+        }
+    }
+
     dragging = null;
+    gc();
+    render();
 });
 
 $(document).mousemove(function(e) {
@@ -92,11 +148,12 @@ $(document).mousemove(function(e) {
     var x = e.pageX;
     var y = e.pageY;
 
-    dragging.copy.css({
+    dragging.$copy.css({
         top: y - dragging.y,
         left: x - dragging.x
     });
 
+    dragging.moveto = null;
     $('.wt-mask').remove();
 
     var $win = whichWindow(x, y);
@@ -105,7 +162,7 @@ $(document).mousemove(function(e) {
         return false;
     }
 
-    if($win[0] === dragging.target[0]) {
+    if($win[0] === dragging.$target[0]) {
         return false;
     }
 
@@ -132,14 +189,19 @@ $(document).mousemove(function(e) {
     }
 
     $('<div/>', {
-            class: 'wt-mask',
-            css: {
-                top: my,
-                left: mx,
-                height: height,
-                width: width
-            }
+        class: 'wt-mask',
+        css: {
+            top: my,
+            left: mx,
+            height: height,
+            width: width
+        }
     }).appendTo($win);
+
+    dragging.moveto = {
+        $win: $win,
+        quad: quad
+    };
 
     return false;
 });
@@ -170,6 +232,20 @@ function whichQuad(xa, ya, $win) {
     } else if(y < ey1 && y > ey2) {
         return 'right';
     }
+}
+
+function gc() {
+    $('.wt-partition').each(function(_, part) {
+        var $part = $(part);
+        var $childs = $part.children();
+
+        if($childs.length === 0) {
+            $part.remove();
+        } else if($childs.length === 1) {
+            $childs.first().insertAfter($part);
+            $part.remove();
+        }
+    });
 }
 
 //*/
