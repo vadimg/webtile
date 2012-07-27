@@ -49,8 +49,11 @@ $('.webtile').css('visibility', 'visible');
 
 var dragging = null;
 
-$('.wt-title').mousedown(function(e) {
+$(document).mousedown(function(e) {
     var $target = $(e.target);
+    if(!$target.hasClass('wt-title')) {
+        return;
+    }
 
     dragging = {
         $target: $target.parent(),
@@ -101,6 +104,10 @@ $(document).mouseup(function(e) {
 
     var $win = dragging.moveto.$win;
     var quad = dragging.moveto.quad;
+    var $targetcopy = $target.clone();
+
+    $target.remove();
+    gc();
 
     var pclass;
     if(quad === 'left' || quad === 'right') {
@@ -112,9 +119,9 @@ $(document).mouseup(function(e) {
     if($win.parent().hasClass(pclass)) {
         // add to current partition
         if(quad === 'top' || quad === 'left') {
-            $target.insertBefore($win);
+            $targetcopy.insertBefore($win);
         } else {
-            $target.insertAfter($win);
+            $targetcopy.insertAfter($win);
         }
     } else {
         // create new partition
@@ -129,7 +136,7 @@ $(document).mouseup(function(e) {
         if(quad === 'top' || quad === 'left') {
             $win.appendTo($partition);
         }
-        $target.appendTo($partition);
+        $targetcopy.appendTo($partition);
         if(quad === 'bottom' || quad === 'right') {
             $win.appendTo($partition);
         }
@@ -234,6 +241,15 @@ function whichQuad(xa, ya, $win) {
     }
 }
 
+function getPartitionType($part) {
+    if($part.hasClass('wt-vertical')) {
+        return 'vertical';
+    }
+    if($part.hasClass('wt-horizontal')) {
+        return 'horizontal';
+    }
+}
+
 function gc() {
     $('.wt-partition').each(function(_, part) {
         var $part = $(part);
@@ -245,6 +261,21 @@ function gc() {
             $childs.first().insertAfter($part);
             $part.remove();
         }
+    });
+
+    $('.wt-partition').each(function(_, part) {
+        var $part = $(part);
+        var type = getPartitionType($part);
+        if(!type) {
+            return;
+        }
+
+        var $childs = $part.children('.wt-partition.wt-' + type);
+        $childs.each(function(_, child) {
+            var $child = $(child);
+            $child.children().insertAfter($child);
+            $child.remove();
+        });
     });
 }
 
