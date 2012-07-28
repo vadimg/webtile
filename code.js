@@ -27,6 +27,7 @@ function render() {
                 $child.height(height);
             });
         } else if($obj.hasClass('wt-horizontal') || $obj.hasClass('webtile')) {
+            // webtile container defaults to horizontal partition
             $childs.height(th);
             $childs.each(function(i, child) {
                 var $child = $(child);
@@ -45,6 +46,7 @@ function render() {
 
 gc();
 render();
+$(window).resize(render);
 $('.webtile').css('visibility', 'visible');
 
 var dragging = null;
@@ -55,15 +57,19 @@ $(document).mousedown(function(e) {
         return;
     }
 
+    // prevent double-mousedown bug
+    // when you are dragging it but somehow not holding down the mouse button
+    // this can happen on a trackpad
+    if($target.parent().hasClass('wt-dragee')) {
+        return;
+    }
+
     dragging = {
         $target: $target.parent(),
         $copy: $target.parent().clone().css({
-            opacity: .5,
-            position: 'absolute',
-            'border-width': '1px',
             top: e.pageY - e.offsetY,
             left: e.pageX - e.offsetX
-        }).insertAfter('body'),
+        }).addClass('wt-dragee').insertAfter('body'),
         x: e.offsetX,
         y: e.offsetY,
         moveto: null,
@@ -251,6 +257,7 @@ function getPartitionType($part) {
 }
 
 function gc() {
+    // remove empty partitions and partitions with only 1 child
     $('.wt-partition').each(function(_, part) {
         var $part = $(part);
         var $childs = $part.children();
@@ -263,6 +270,7 @@ function gc() {
         }
     });
 
+    // consolidate child partitions which are the same type as parent
     $('.wt-partition').each(function(_, part) {
         var $part = $(part);
         var type = getPartitionType($part);
@@ -278,7 +286,5 @@ function gc() {
         });
     });
 }
-
-//*/
 
 })();

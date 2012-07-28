@@ -59,3 +59,9 @@ body {
     border-style: dotted;
     border-color: gray;
 }
+
+.wt-dragee {
+    opacity: 0.5;
+    position: absolute;
+    border-width: 1px;
+}
