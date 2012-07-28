@@ -1,6 +1,12 @@
+html {
+    box-sizing: border-box;
+    height: 100%;
+}
 
 body {
-    height: 600px;
+    box-sizing: border-box;
+    height: 100%;
+    padding-bottom: 15px;
 }
 
 .webtile * {
