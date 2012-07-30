@@ -140,11 +140,9 @@ $(document).mouseup(function(e) {
         $partition.insertAfter($win);
 
         if(quad === 'top' || quad === 'left') {
-            $win.appendTo($partition);
-        }
-        $targetcopy.appendTo($partition);
-        if(quad === 'bottom' || quad === 'right') {
-            $win.appendTo($partition);
+            $partition.append($targetcopy).append($win);
+        } else if(quad === 'bottom' || quad === 'right') {
+            $partition.append($win).append($targetcopy);
         }
     }
 
