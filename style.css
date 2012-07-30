@@ -7,6 +7,7 @@ body {
     box-sizing: border-box;
     height: 100%;
     padding-bottom: 15px;
+    font-family: Lato;
 }
 
 .webtile * {
@@ -42,9 +43,13 @@ body {
 }
 
 .wt-title {
-    background-color: #1975FF;
+    background-color: lightgray;
     padding: 1px 5px 1px 5px;
     cursor: pointer;
+    font-family: 'Open Sans';
+    font-size: .9em;
+    color: #333333;
+    border-bottom: 1px solid #CCCCCC;
 }
 
 .wt-content {
@@ -63,7 +68,7 @@ body {
 
 .wt-mask {
     position: absolute;
-    background-color: #00aa00;
+    background-color: #1975FF;
     opacity: 0.5;
     border-width: 1px;
     border-style: dotted;
