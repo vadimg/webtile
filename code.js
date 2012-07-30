@@ -42,6 +42,16 @@ function render() {
     $('.webtile').each(renderChilds);
     $('.wt-partition').each(renderChilds);
     firstRender = false;
+
+    // set heights of content correctly
+    $('.wt-window').each(function(_, win) {
+        var $win = $(win);
+
+        var $title = $win.children('.wt-title');
+        var $content = $win.children('.wt-content');
+        var extra = $content.outerHeight() - $content.height();
+        $content.height($win.height() - $title.height() - extra);
+    });
 }
 
 gc();

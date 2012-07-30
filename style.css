@@ -38,6 +38,7 @@ body {
 
 .wt-horizontal > * {
     display: inline-block;
+    vertical-align: top;
 }
 
 .wt-title {
@@ -47,7 +48,10 @@ body {
 }
 
 .wt-content {
-    padding: 1px 5px 1px 5px;
+    padding: 5px;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
 }
 
 .wt-window {
