@@ -1,65 +1,7 @@
 (function() {
 
 var firstRender = true;
-
-function render() {
-    function renderChilds(_, obj) {
-        var $obj = $(obj);
-        var th = $obj.height();
-        var tw = $obj.width();
-        var $childs = $(obj).children();
-
-        // remove stray spaces cuz they will fuck up the layout
-        if(firstRender) {
-            $childs.remove();
-            $obj.text('');
-            $obj.append($childs);
-        }
-
-        if($obj.hasClass('wt-vertical')) {
-            $childs.width(tw);
-            $childs.each(function(i, child) {
-                var $child = $(child);
-
-                var height = Math.round(th / ($childs.length - i));
-                th -= height;
-
-                $child.height(height);
-            });
-        } else if($obj.hasClass('wt-horizontal') || $obj.hasClass('webtile')) {
-            // webtile container defaults to horizontal partition
-            $childs.height(th);
-            $childs.each(function(i, child) {
-                var $child = $(child);
-
-                var width = Math.round(tw / ($childs.length - i));
-                tw -= width;
-
-                $child.width(width);
-            });
-        }
-    }
-    $('.webtile').each(renderChilds);
-    $('.wt-partition').each(renderChilds);
-    firstRender = false;
-
-    // set heights of content correctly
-    $('.wt-window').each(function(_, win) {
-        var $win = $(win);
-
-        var $title = $win.children('.wt-title');
-        var $content = $win.children('.wt-content');
-        var extra = $content.outerHeight() - $content.height();
-        $content.height($win.height() - $title.height() - extra);
-    });
-}
-
-gc();
-render();
-$(window).resize(render);
-$('.webtile').css('visibility', 'visible');
-
-var dragging = null;
+var dragging = null; // data about the window being dragged
 
 $(document).mousedown(function(e) {
     var $target = $(e.target);
@@ -157,7 +99,6 @@ $(document).mouseup(function(e) {
     }
 
     dragging = null;
-    gc();
     render();
 });
 
@@ -294,5 +235,74 @@ function gc() {
         });
     });
 }
+
+function resizeWindows() {
+    // set the dimensions of the windows correctly
+    function resizeChilds(_, obj) {
+        var $obj = $(obj);
+        var th = $obj.height();
+        var tw = $obj.width();
+        var $childs = $(obj).children();
+
+        // remove stray spaces cuz they will fuck up the layout
+        if(firstRender) {
+            $childs.remove();
+            $obj.text('');
+            $obj.append($childs);
+        }
+
+        if($obj.hasClass('wt-vertical')) {
+            $childs.width(tw);
+            $childs.each(function(i, child) {
+                var $child = $(child);
+
+                var height = Math.round(th / ($childs.length - i));
+                th -= height;
+
+                $child.height(height);
+            });
+        } else if($obj.hasClass('wt-horizontal') || $obj.hasClass('webtile')) {
+            // webtile container defaults to horizontal partition
+            $childs.height(th);
+            $childs.each(function(i, child) {
+                var $child = $(child);
+
+                var width = Math.round(tw / ($childs.length - i));
+                tw -= width;
+
+                $child.width(width);
+            });
+        }
+    }
+    $('.webtile').each(resizeChilds);
+    $('.wt-partition').each(resizeChilds);
+    firstRender = false;
+
+    // set heights of content correctly
+    $('.wt-window').each(function(_, win) {
+        var $win = $(win);
+
+        var $title = $win.children('.wt-title');
+        var $content = $win.children('.wt-content');
+        var extra = $content.outerHeight() - $content.height();
+        $content.height($win.height() - $title.height() - extra);
+    });
+}
+
+function render() {
+    gc();
+    resizeWindows();
+}
+
+render();
+$(window).resize(render);
+$('.webtile').css('visibility', 'visible');
+
+// expose some methods
+window.webtile = {
+    render: render,
+    resizeWindows: resizeWindows,
+    gc: gc
+};
 
 })();
